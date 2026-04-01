@@ -3,6 +3,7 @@ import Header from './components/Header'
 import SummaryCards from './components/SummaryCards'
 import LineChart from './components/LineChart'
 import PieChart from './components/PieChart'
+import MiniSpark from './components/MiniSpark'
 import Transactions from './components/Transactions'
 import Insights from './components/Insights'
 import History from './components/History'
@@ -22,13 +23,13 @@ function buildSeries(transactions){
 }
 
 export default function App(){
-  const { transactions } = useApp()
-  const series = useMemo(()=> buildSeries(transactions),[transactions])
+  const { transactions, filteredTransactions } = useApp()
+  const series = useMemo(()=> buildSeries(filteredTransactions),[filteredTransactions])
   const categoryMap = useMemo(()=>{
     const map = {}
-    transactions.forEach(t=> map[t.category] = (map[t.category]||0) + Math.abs(t.amount))
+    filteredTransactions.forEach(t=> map[t.category] = (map[t.category]||0) + Math.abs(t.amount))
     return map
-  },[transactions])
+  },[filteredTransactions])
 
   return (
     <div className="container">
@@ -39,7 +40,13 @@ export default function App(){
           <SummaryCards />
           <div style={{display:'flex',gap:16,marginTop:12,flexWrap:'wrap'}}>
             <div style={{flex:1,minWidth:260}}>
-              <div className="small">Balance Trend</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                <div className="small">Balance Trend</div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <div className="small" style={{opacity:0.8}}>Net worth</div>
+                  <MiniSpark series={series.slice(Math.max(0, series.length-12))} />
+                </div>
+              </div>
               <LineChart series={series} />
             </div>
             <div style={{width:180}}>

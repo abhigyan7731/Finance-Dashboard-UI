@@ -38,25 +38,42 @@ function EditableRow({t, editForm, setEditForm, onSave, onCancel}){
 }
 
 export default function Transactions(){
-  const { transactions, filters, setFilters, role, addTransaction, updateTransaction } = useApp()
+  const { transactions, filters, setFilters, role, addTransaction, updateTransaction, deleteTransaction, history } = useApp()
   const [sortMode, setSortMode] = useState('date_desc')
   const [virtualize, setVirtualize] = useState(false)
+  const [selectedIds, setSelectedIds] = useState([])
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+  const [amountMin, setAmountMin] = useState('')
+  const [amountMax, setAmountMax] = useState('')
+  const [categoryMulti, setCategoryMulti] = useState([])
+  const [notesQuery, setNotesQuery] = useState('')
   const [form, setForm] = useState({date:'',category:'',amount:'',type:'expense'})
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({date:'',category:'',amount:'',type:'expense'})
 
+  const categories = useMemo(()=>{
+    const set = new Set(); transactions.forEach(t=> set.add(t.category)); return Array.from(set).sort()
+  },[transactions])
+
   const filtered = useMemo(()=>{
     const q = (filters.query||'').toLowerCase().trim()
     const list = transactions.filter(t=>{
-      if(filters.type!=='all' && t.type!==filters.type) return false
+      if(filters.type && filters.type!=='all' && t.type!==filters.type) return false
       if(q){
-        if(t.category.toLowerCase().includes(q)) return true
-        if(t.date.toLowerCase().includes(q)) return true
+        if((t.category||'').toLowerCase().includes(q)) return true
+        if((t.date||'').toLowerCase().includes(q)) return true
         if(String(t.amount).toLowerCase().includes(q)) return true
-        return false
       }
+      // advanced filters
+      if(amountMin){ if(t.amount < Number(amountMin)) return false }
+      if(amountMax){ if(t.amount > Number(amountMax)) return false }
+      if(categoryMulti && categoryMulti.length>0){ if(!categoryMulti.includes(t.category)) return false }
+      if(notesQuery){ if(!(t.notes||'').toLowerCase().includes(notesQuery.toLowerCase())) return false }
+
+      // if q existed and matched already we'd have returned true above; otherwise allow
+      if(q) return (t.category||'').toLowerCase().includes(q) || (t.date||'').toLowerCase().includes(q) || String(t.amount).toLowerCase().includes(q)
       return true
     })
 
@@ -69,7 +86,7 @@ export default function Transactions(){
       }
       return 0
     })
-  },[transactions,filters,sortMode])
+  },[transactions,filters,sortMode,amountMin,amountMax,categoryMulti,notesQuery])
 
   // pagination
   const total = filtered.length
@@ -108,6 +125,26 @@ export default function Transactions(){
     URL.revokeObjectURL(url)
   }
 
+  const toggleSelect = (id)=>{
+    setSelectedIds(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id])
+  }
+  const toggleSelectAll = ()=>{
+    if(selectedIds.length === filtered.length) setSelectedIds([])
+    else setSelectedIds(filtered.map(t=>t.id))
+  }
+
+  const bulkDelete = ()=>{
+    if(selectedIds.length===0) return
+    if(!confirm(`Delete ${selectedIds.length} transactions? This cannot be undone.`)) return
+    selectedIds.forEach(id=> deleteTransaction(id))
+    setSelectedIds([])
+  }
+
+  const bulkTag = (category)=>{
+    selectedIds.forEach(id=> updateTransaction(id,{category}))
+    setSelectedIds([])
+  }
+
   const handleAdd = (e)=>{
     e.preventDefault()
     const t = { id: 't'+Date.now(), date: form.date || new Date().toISOString().slice(0,10), amount: parseFloat(form.amount)* (form.type==='expense'? -1:1), category: form.category || 'Misc', type: form.type }
@@ -132,16 +169,50 @@ export default function Transactions(){
             <option value="amount_desc">Amount: high→low</option>
             <option value="amount_asc">Amount: low→high</option>
           </select>
+          <button className="btn-ghost" onClick={()=>setAdvancedOpen(a=>!a)}>{advancedOpen? 'Hide advanced':'Advanced'}</button>
         </div>
       </div>
 
-      <div className="transactions-list">
-          <div className="tx-row-header">
-          <div style={{minWidth:120}}>Date</div>
-          <div style={{flex:1}}>Category</div>
-          <div style={{width:100,textAlign:'center'}}>Type</div>
-          <div style={{width:110,textAlign:'right'}}>Amount</div>
+      {advancedOpen && (
+        <div style={{display:'flex',gap:8,alignItems:'center',marginBottom:8}}>
+          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            <div className="small">Amount</div>
+            <input placeholder="min" style={{width:80}} value={amountMin} onChange={e=>setAmountMin(e.target.value)} />
+            <input placeholder="max" style={{width:80}} value={amountMax} onChange={e=>setAmountMax(e.target.value)} />
+          </div>
+          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            <div className="small">Categories</div>
+            <select multiple value={categoryMulti} onChange={e=> setCategoryMulti(Array.from(e.target.selectedOptions).map(o=>o.value))} style={{minWidth:160}}>
+              {categories.map(c=> <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            <div className="small">Notes</div>
+            <input placeholder="Search notes" value={notesQuery} onChange={e=>setNotesQuery(e.target.value)} />
+          </div>
         </div>
+      )}
+
+      <div className="transactions-list">
+          <div className="tx-row-header" style={{display:'flex',alignItems:'center'}}>
+            <div style={{width:40,textAlign:'center'}}><input type="checkbox" onChange={toggleSelectAll} checked={selectedIds.length===filtered.length && filtered.length>0} /></div>
+            <div style={{minWidth:120}}>Date</div>
+            <div style={{flex:1}}>Category</div>
+            <div style={{width:100,textAlign:'center'}}>Type</div>
+            <div style={{width:110,textAlign:'right'}}>Amount</div>
+            <div style={{width:160,textAlign:'center'}}>History</div>
+          </div>
+
+          {selectedIds.length>0 && (
+            <div style={{display:'flex',gap:8,alignItems:'center',padding:'8px 0'}}>
+              <div className="small">{selectedIds.length} selected</div>
+              <button className="btn-ghost" onClick={bulkDelete}>Delete</button>
+              <select onChange={e=>bulkTag(e.target.value)} defaultValue="">
+                <option value="">Tag category...</option>
+                {categories.map(c=> <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          )}
         {filtered.length===0 && <div className="small">No transactions found</div>}
         {virtualize ? (
           <div style={{height:380}}>
@@ -154,7 +225,21 @@ export default function Transactions(){
             editingId===t.id ? (
               <EditableRow key={t.id} t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1)}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
             ) : (
-              <Row key={t.id} t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type}) }} />
+              <div key={t.id} style={{display:'flex',alignItems:'center'}}>
+                <div style={{width:40,textAlign:'center'}}><input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleSelect(t.id)} /></div>
+                <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type}) }} />
+                <div style={{width:160,textAlign:'center'}}>
+                  {(() => {
+                    const entries = history.filter(h=>h.txId===t.id).sort((a,b)=> new Date(b.when)-new Date(a.when))
+                    if(entries.length===0) return <div className="small">-</div>
+                    const last = entries[0]
+                    return <div className="small">{new Date(last.when).toLocaleString()}</div>
+                  })()}
+                </div>
+                <div style={{width:80,textAlign:'center'}}>
+                  <button className="btn-ghost" onClick={()=>{ if(confirm('Delete this transaction?')) deleteTransaction(t.id) }}>Delete</button>
+                </div>
+              </div>
             )
           ))
         )}

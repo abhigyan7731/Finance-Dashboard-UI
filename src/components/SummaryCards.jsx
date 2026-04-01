@@ -7,10 +7,11 @@ function format(n){
 }
 
 export default function SummaryCards(){
-  const { transactions } = useApp()
-  const total = transactions.reduce((s,t)=>s + t.amount,0)
-  const income = transactions.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0)
-  const expense = transactions.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0)
+  const { transactions, filteredTransactions } = useApp()
+  const tx = filteredTransactions || transactions
+  const total = tx.reduce((s,t)=>s + t.amount,0)
+  const income = tx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0)
+  const expense = tx.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0)
   // helper: last N days totals
   const lastNDays = (n=7)=>{
     const days = []
@@ -25,7 +26,7 @@ export default function SummaryCards(){
     const days = lastNDays(7)
     const map = {}
     days.forEach(d=>map[d]=0)
-    transactions.forEach(t=>{ if(map[t.date]!==undefined) map[t.date]+=t.amount })
+    tx.forEach(t=>{ if(map[t.date]!==undefined) map[t.date]+=t.amount })
     return days.map(d=>map[d])
   },[transactions])
 

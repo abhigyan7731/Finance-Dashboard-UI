@@ -2,32 +2,33 @@ import React, { useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 
 export default function Insights(){
-  const { transactions } = useApp()
+  const { transactions, filteredTransactions } = useApp()
+  const tx = filteredTransactions || transactions
 
   const totals = useMemo(()=>{
-    const income = transactions.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0)
-    const expense = transactions.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0)
+    const income = tx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0)
+    const expense = tx.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0)
     return {income, expense, balance: income - expense}
-  },[transactions])
+  },[tx])
 
   const highestCategory = useMemo(()=>{
     const map = {}
-    transactions.filter(t=>t.amount<0).forEach(t=> map[t.category] = (map[t.category]||0) + Math.abs(t.amount))
+    tx.filter(t=>t.amount<0).forEach(t=> map[t.category] = (map[t.category]||0) + Math.abs(t.amount))
     const entries = Object.entries(map)
     if(entries.length===0) return {cat:'-', amount:0}
     entries.sort((a,b)=>b[1]-a[1])
     return {cat:entries[0][0], amount:entries[0][1]}
-  },[transactions])
+  },[tx])
 
   const monthlyCompare = useMemo(()=>{
     const perMonth = {}
-    transactions.forEach(t=>{
+    tx.forEach(t=>{
       const m = t.date.slice(0,7)
       perMonth[m] = (perMonth[m]||0) + t.amount
     })
     const months = Object.keys(perMonth).sort()
     return {months, perMonth}
-  },[transactions])
+  },[tx])
 
   // month over month change (last two months)
   const mom = useMemo(()=>{
@@ -40,7 +41,7 @@ export default function Insights(){
     return {months, lastMonth: months[months.length-1], prevMonth: months[months.length-2], diff, pct}
   },[monthlyCompare])
 
-  const noData = transactions.length === 0
+  const noData = tx.length === 0
 
   return (
     <div className="card">
