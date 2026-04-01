@@ -1,0 +1,67 @@
+:root{
+  --bg:#0f1724; /* deep base for gradient */
+  --bg-2:#0b1220;
+  --card: rgba(255,255,255,0.6);
+  --muted: rgba(15,23,42,0.6);
+  --accent: #14b8a6; /* teal accent */
+  --glass-border: rgba(255,255,255,0.6);
+  --card-text: #0f1724;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(135deg,var(--bg),var(--bg-2));color:var(--card-text);min-height:100vh;position:relative;overflow-y:auto}
+
+/* subtle decorative radial gradient */
+body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:radial-gradient(800px 400px at 10% 10%, rgba(20,184,166,0.06), transparent), radial-gradient(600px 300px at 90% 90%, rgba(99,102,241,0.04), transparent);pointer-events:none}
+
+.container{max-width:1100px;margin:28px auto;padding:20px}
+.grid{display:grid;gap:18px}
+.row{display:flex;gap:18px}
+
+/* Glass card */
+.card{background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:18px;border-radius:12px;border:1px solid var(--glass-border);box-shadow:0 8px 20px rgba(2,6,23,0.35)}
+
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.summary{display:flex;gap:14px;flex-wrap:wrap}
+.summary .card{flex:1;min-width:190px}
+.small{font-size:12px;color:var(--muted)}
+.big{font-size:1.25rem;font-weight:700;color:var(--accent)}
+.transactions-list{max-height:420px;overflow:auto}
+@media (max-width:980px){.row{flex-direction:column}}
+
+/* inputs and selects */
+input, select{padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.08);background:rgba(255,255,255,0.85);color:var(--card-text);outline:none}
+input::placeholder{color:rgba(15,23,42,0.4)}
+
+/* Buttons */
+button{background:transparent;border:1px solid rgba(15,23,42,0.08);padding:8px 10px;border-radius:8px;cursor:pointer}
+button:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:white;border-color:transparent}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,0.06);color:var(--card-text)}
+
+/* make action buttons distinct */
+.card h3{margin:0 0 6px 0}
+
+@media (max-width:520px){.container{padding:12px}}
+
+/* Transaction rows as small cards for readability */
+.tx-card{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;margin:8px 0;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.35);box-shadow:0 6px 16px rgba(2,6,23,0.12)}
+.tx-card .badge{padding:6px 8px;border-radius:999px;font-size:12px;color:white}
+.badge.income{background:linear-gradient(90deg,rgba(20,184,166,1),rgba(16,185,129,0.9))}
+.badge.expense{background:linear-gradient(90deg,rgba(239,68,68,1),rgba(244,114,182,0.9))}
+.amount{font-weight:700}
+.amount.positive{color:var(--accent)}
+.amount.negative{color:#ef4444}
+
+/* small utility spacing for the transactions component */
+.tx-row-header{display:flex;padding:8px 0;border-bottom:1px solid rgba(15,23,42,0.06);font-weight:650}
+
+/* Badges for transaction types */
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;color:#fff;font-size:12px;text-transform:capitalize}
+.badge.income{background:var(--accent)}
+.badge.expense{background:#ef4444}
+
+/* Row hover and amount colors */
+.transactions-list .tx-row{transition:background-color 120ms ease}
+.transactions-list .tx-row:hover{background:rgba(37,99,235,0.04)}
+.amount.positive{color:#10b981;font-weight:600}
+.amount.negative{color:#ef4444;font-weight:600}
