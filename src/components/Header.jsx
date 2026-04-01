@@ -17,7 +17,7 @@ export default function Header(){
   return (
     <div className="header" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
       <div>
-        <h1 style={{margin:0}}>Finance Dashboard</h1>
+        <h1 style={{margin:0,color:'#ffffff'}}>Finance Dashboard</h1>
         <div className="small">A simple interactive demo</div>
       </div>
 

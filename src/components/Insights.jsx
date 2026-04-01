@@ -108,7 +108,7 @@ export default function Insights(){
             </div>
           </div>
 
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginTop:12}}>
+          <div className="insights-grid">
             <div>
               <div className="small">Upcoming bills (30 days)</div>
               {upcomingBills.length===0 ? <div className="small">No upcoming bills</div> : (
