@@ -164,7 +164,7 @@ export default function Transactions(){
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
         <h3 style={{margin:0}}>Transactions</h3>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <input style={{minWidth:180}} placeholder="Search (category or date)" value={filters.query} onChange={e=>setFilters(f=>({...f,query:e.target.value}))} />
+          <input style={{minWidth:180}} placeholder="Search (category or date)" title="Search by category, date or amount" value={filters.query} onChange={e=>setFilters(f=>({...f,query:e.target.value}))} />
           <select value={filters.type} onChange={e=>setFilters(f=>({...f,type:e.target.value}))}>
             <option value="all">All</option>
             <option value="income">Income</option>
@@ -177,6 +177,34 @@ export default function Transactions(){
             <option value="amount_asc">Amount: low→high</option>
           </select>
           <button className="btn-ghost" onClick={()=>setAdvancedOpen(a=>!a)}>{advancedOpen? 'Hide advanced':'Advanced'}</button>
+          {role==='admin' && (
+            <>
+              <label className="small" title="Import transactions from a CSV file" style={{marginLeft:6}}>
+                <input type="file" accept="text/csv" style={{display:'none'}} onChange={(e)=>{
+                  const f = e.target.files && e.target.files[0]
+                  if(!f) return
+                  const reader = new FileReader()
+                  reader.onload = ()=>{
+                    const txt = reader.result
+                    const lines = String(txt).split('\n').map(l=>l.trim()).filter(l=>l)
+                    // naive CSV: Date,Category,Type,Amount,Notes,DueDate
+                    lines.slice(1).forEach(line=>{
+                      const cols = line.split(',').map(c=>c.replace(/^"|"$/g,'').trim())
+                      const [date,category,type,amount,notes,dueDate] = cols
+                      const t = { id: 't'+Date.now()+Math.random().toString(36).slice(2,6), date: date||new Date().toISOString().slice(0,10), amount: parseFloat(amount) * (type==='expense'? -1:1), category: category||'Imported', type: type||'expense', notes: notes||'', dueDate: dueDate||undefined }
+                      addTransaction(t)
+                    })
+                  }
+                  reader.readAsText(f)
+                }} />
+                <button className="btn-ghost">Import CSV</button>
+              </label>
+              <button className="btn-ghost" title="Export visible transactions as CSV" onClick={exportCsv}>Export CSV</button>
+            </>
+          )}
+          {role!=='admin' && (
+            <button className="btn-ghost" title="Export visible transactions as CSV" onClick={exportCsv}>Export CSV</button>
+          )}
         </div>
       </div>
 
@@ -220,7 +248,17 @@ export default function Transactions(){
               </select>
             </div>
           )}
-        {filtered.length===0 && <div className="small">No transactions found</div>}
+        {filtered.length===0 && (
+          <div style={{padding:24,display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
+            <div style={{fontSize:20,fontWeight:700}}>No transactions yet</div>
+            <div className="small">Start by adding your first transaction to see insights and charts.</div>
+            {role==='admin' ? (
+              <button className="btn-primary" onClick={()=>document.querySelector('form button[type=submit]')?.click()}>Add your first transaction</button>
+            ) : (
+              <button className="btn-primary" disabled title="Ask an admin to add transactions">Add your first transaction</button>
+            )}
+          </div>
+        )}
         {virtualize ? (
           <div style={{height:380}}>
             <List height={380} itemCount={filtered.length} itemSize={52} width={'100%'}>

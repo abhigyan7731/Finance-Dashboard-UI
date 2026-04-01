@@ -41,16 +41,22 @@ export default function App(){
           <div style={{display:'flex',gap:16,marginTop:12,flexWrap:'wrap'}}>
             <div style={{flex:1,minWidth:260}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
-                <div className="small">Balance Trend</div>
-                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{display:'flex',flexDirection:'column'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div className="small">Balance Trend</div>
+                    <div className="small" title="Shows cumulative balance over time">i</div>
+                  </div>
                   <div className="small" style={{opacity:0.8}}>Net worth</div>
-                  <MiniSpark series={series.slice(Math.max(0, series.length-12))} />
                 </div>
+                <MiniSpark series={series.slice(Math.max(0, series.length-12))} />
               </div>
               <LineChart series={series} />
             </div>
             <div style={{width:180}}>
-              <div className="small">Spending Breakdown</div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div className="small">Spending Breakdown</div>
+                <div className="small" title="Category share of expenses">i</div>
+              </div>
               <PieChart data={categoryMap} />
             </div>
           </div>

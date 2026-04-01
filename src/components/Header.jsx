@@ -1,10 +1,13 @@
 import React, {useState} from 'react'
 import { useApp } from '../context/AppContext'
+import SettingsDrawer from './SettingsDrawer'
 
 export default function Header(){
   const { role, setRole, dateRange, setRangePreset, setDateRange } = useApp()
+  const { lastUpdated } = useApp()
   const [mode, setMode] = useState(dateRange?.preset || '30')
   const [custom, setCustom] = useState({from: dateRange?.from || '', to: dateRange?.to || ''})
+  const [openSettings, setOpenSettings] = useState(false)
 
   const applyCustom = ()=>{
     setRangePreset('custom', {from: custom.from, to: custom.to})
@@ -44,15 +47,21 @@ export default function Header(){
           )}
 
         </div>
-
         <div style={{display:'flex',gap:12,alignItems:'center'}}>
-          <label className="small">Role</label>
-          <select value={role} onChange={e=>setRole(e.target.value)}>
-            <option value="viewer">Viewer</option>
-            <option value="admin">Admin</option>
-          </select>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end'}}>
+            {role==='viewer' && lastUpdated && <div className="small">Last updated at {new Date(lastUpdated).toLocaleString()}</div>}
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <button className="btn-ghost" onClick={()=>setOpenSettings(s=>!s)} title="Open profile & settings">Profile</button>
+              <label className="small">Role</label>
+              <select value={role} onChange={e=>setRole(e.target.value)}>
+                <option value="viewer">Viewer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
+      {openSettings && <SettingsDrawer onClose={()=>setOpenSettings(false)} />}
     </div>
   )
 }

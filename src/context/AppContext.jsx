@@ -63,6 +63,16 @@ export function AppProvider({ children }){
     if(typeof window === 'undefined') return
     localStorage.setItem('transactions', JSON.stringify(transactions))
   },[transactions])
+  // track last updated timestamp when transactions change
+  const [lastUpdated, setLastUpdated] = React.useState(()=>{
+    try{ const raw = typeof window !== 'undefined' ? localStorage.getItem('lastUpdated') : null; return raw || null }catch(e){return null}
+  })
+  useEffect(()=>{
+    const ts = new Date().toISOString()
+    setLastUpdated(ts)
+    if(typeof window === 'undefined') return
+    localStorage.setItem('lastUpdated', ts)
+  },[transactions])
   useEffect(()=>{
     if(typeof window === 'undefined') return
     localStorage.setItem('dateRange', JSON.stringify(dateRange))
@@ -124,7 +134,7 @@ export function AppProvider({ children }){
   },[transactions,dateRange])
 
   return (
-    <AppContext.Provider value={{role,setRole,transactions,addTransaction,updateTransaction,deleteTransaction,filters,setFilters,history,undoHistoryEntry,dateRange,setDateRange,setRangePreset,filteredTransactions}}>
+    <AppContext.Provider value={{role,setRole,transactions,addTransaction,updateTransaction,deleteTransaction,filters,setFilters,history,undoHistoryEntry,dateRange,setDateRange,setRangePreset,filteredTransactions,lastUpdated}}>
       {children}
     </AppContext.Provider>
   )

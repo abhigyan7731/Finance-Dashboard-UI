@@ -25,6 +25,9 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background-image:radia
 .card{transition:transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease}
 .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.45);border-color: rgba(255,255,255,0.8)}
 
+/* tooltip helper (title attribute used for simple tooltips) */
+.small[title]{cursor:help}
+
 /* subtle icon/button scale on hover */
 .icon-scale{transition:transform 180ms ease}
 .icon-scale:hover{transform:scale(1.03)}
