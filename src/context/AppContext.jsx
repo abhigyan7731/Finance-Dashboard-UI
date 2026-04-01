@@ -124,7 +124,7 @@ export function AppProvider({ children }){
   },[transactions,dateRange])
 
   return (
-    <AppContext.Provider value={{role,setRole,transactions,addTransaction,updateTransaction,filters,setFilters,history,undoHistoryEntry,dateRange,setDateRange,setRangePreset,filteredTransactions}}>
+    <AppContext.Provider value={{role,setRole,transactions,addTransaction,updateTransaction,deleteTransaction,filters,setFilters,history,undoHistoryEntry,dateRange,setDateRange,setRangePreset,filteredTransactions}}>
       {children}
     </AppContext.Provider>
   )

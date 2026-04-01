@@ -101,3 +101,18 @@ button:hover{transform:translateY(-1px)}
 .transactions-list .tx-row:hover{background:rgba(37,99,235,0.04)}
 .amount.positive{color:#10b981;font-weight:600}
 .amount.negative{color:#ef4444;font-weight:600}
+
+/* small chip for quick presets */
+.chip{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.04);padding:6px 10px;border-radius:999px;cursor:pointer}
+.chip:hover{transform:translateY(-2px)}
+
+/* modal overlay */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center}
+.modal{background:var(--card);padding:16px;border-radius:12px;max-width:520px;width:92%;border:1px solid var(--glass-border)}
+
+/* arrows for percent change */
+.arrow-up{color:#16a34a;margin-right:6px}
+.arrow-down{color:#ef4444;margin-right:6px}
+
+/* anomaly badge */
+.anomaly-badge{padding:4px 8px;border-radius:8px;color:#fff;font-weight:700}

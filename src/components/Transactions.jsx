@@ -21,15 +21,17 @@ function Row({t, role, onStartEdit}){
 // Editable row (renders when admin is editing this transaction)
 function EditableRow({t, editForm, setEditForm, onSave, onCancel}){
   return (
-    <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #eee',alignItems:'center'}}>
-      <input style={{minWidth:120}} value={editForm.date} onChange={e=>setEditForm(f=>({...f,date:e.target.value}))} />
+    <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #eee',alignItems:'center',gap:8}}>
+      <input style={{minWidth:110}} value={editForm.date} onChange={e=>setEditForm(f=>({...f,date:e.target.value}))} />
       <input style={{flex:1}} value={editForm.category} onChange={e=>setEditForm(f=>({...f,category:e.target.value}))} />
       <select style={{width:100}} value={editForm.type} onChange={e=>setEditForm(f=>({...f,type:e.target.value}))}>
         <option value="expense">Expense</option>
         <option value="income">Income</option>
       </select>
-      <input style={{width:110,textAlign:'right'}} value={editForm.amount} onChange={e=>setEditForm(f=>({...f,amount:e.target.value}))} />
-      <div style={{width:100,textAlign:'center',display:'flex',gap:6,justifyContent:'center'}}>
+      <input style={{width:90,textAlign:'right'}} value={editForm.amount} onChange={e=>setEditForm(f=>({...f,amount:e.target.value}))} />
+      <input type="date" style={{width:130}} value={editForm.dueDate||''} onChange={e=>setEditForm(f=>({...f,dueDate:e.target.value}))} />
+      <input placeholder="notes" style={{width:160}} value={editForm.notes||''} onChange={e=>setEditForm(f=>({...f,notes:e.target.value}))} />
+      <div style={{width:140,textAlign:'center',display:'flex',gap:6,justifyContent:'center'}}>
         <button className="btn-primary" onClick={()=>onSave(t.id)}>Save</button>
         <button className="btn-ghost" onClick={onCancel}>Cancel</button>
       </div>
@@ -47,11 +49,12 @@ export default function Transactions(){
   const [amountMax, setAmountMax] = useState('')
   const [categoryMulti, setCategoryMulti] = useState([])
   const [notesQuery, setNotesQuery] = useState('')
-  const [form, setForm] = useState({date:'',category:'',amount:'',type:'expense'})
+  const [form, setForm] = useState({date:'',category:'',amount:'',type:'expense', dueDate:'', notes:''})
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [editingId, setEditingId] = useState(null)
-  const [editForm, setEditForm] = useState({date:'',category:'',amount:'',type:'expense'})
+  const [editForm, setEditForm] = useState({date:'',category:'',amount:'',type:'expense',dueDate:'',notes:''})
+  const [confirmState, setConfirmState] = useState({show:false,type:null,ids:[]})
 
   const categories = useMemo(()=>{
     const set = new Set(); transactions.forEach(t=> set.add(t.category)); return Array.from(set).sort()
@@ -102,9 +105,9 @@ export default function Transactions(){
     return (
       <div style={style}>
         {editingId===t.id ? (
-          <EditableRow t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1)}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
+          <EditableRow t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1), dueDate: editForm.dueDate||undefined, notes: editForm.notes||''}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
         ) : (
-          <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type}) }} />
+          <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
         )}
       </div>
     )
@@ -135,9 +138,7 @@ export default function Transactions(){
 
   const bulkDelete = ()=>{
     if(selectedIds.length===0) return
-    if(!confirm(`Delete ${selectedIds.length} transactions? This cannot be undone.`)) return
-    selectedIds.forEach(id=> deleteTransaction(id))
-    setSelectedIds([])
+    setConfirmState({show:true,type:'bulk',ids:selectedIds})
   }
 
   const bulkTag = (category)=>{
@@ -145,11 +146,17 @@ export default function Transactions(){
     setSelectedIds([])
   }
 
+  const performDelete = (ids)=>{
+    ids.forEach(id=> deleteTransaction(id))
+    setSelectedIds([])
+    setConfirmState({show:false,type:null,ids:[]})
+  }
+
   const handleAdd = (e)=>{
     e.preventDefault()
-    const t = { id: 't'+Date.now(), date: form.date || new Date().toISOString().slice(0,10), amount: parseFloat(form.amount)* (form.type==='expense'? -1:1), category: form.category || 'Misc', type: form.type }
+    const t = { id: 't'+Date.now(), date: form.date || new Date().toISOString().slice(0,10), amount: parseFloat(form.amount)* (form.type==='expense'? -1:1), category: form.category || 'Misc', type: form.type, dueDate: form.dueDate || undefined, notes: form.notes || '' }
     addTransaction(t)
-    setForm({date:'',category:'',amount:'',type:'expense'})
+    setForm({date:'',category:'',amount:'',type:'expense',dueDate:'',notes:''})
   }
 
   return (
@@ -223,11 +230,11 @@ export default function Transactions(){
         ) : (
           paged.map(t=> (
             editingId===t.id ? (
-              <EditableRow key={t.id} t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1)}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
+              <EditableRow key={t.id} t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1), dueDate: editForm.dueDate||undefined, notes: editForm.notes||''}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
             ) : (
               <div key={t.id} style={{display:'flex',alignItems:'center'}}>
                 <div style={{width:40,textAlign:'center'}}><input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleSelect(t.id)} /></div>
-                <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type}) }} />
+                <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
                 <div style={{width:160,textAlign:'center'}}>
                   {(() => {
                     const entries = history.filter(h=>h.txId===t.id).sort((a,b)=> new Date(b.when)-new Date(a.when))
@@ -237,7 +244,7 @@ export default function Transactions(){
                   })()}
                 </div>
                 <div style={{width:80,textAlign:'center'}}>
-                  <button className="btn-ghost" onClick={()=>{ if(confirm('Delete this transaction?')) deleteTransaction(t.id) }}>Delete</button>
+                  <button className="btn-ghost" onClick={()=> setConfirmState({show:true,type:'single',ids:[t.id]}) }>Delete</button>
                 </div>
               </div>
             )
@@ -264,6 +271,22 @@ export default function Transactions(){
           <button className="btn-primary" onClick={exportCsv}>Export CSV</button>
         </div>
       </div>
+
+      {confirmState.show && (
+        <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(2,6,23,0.5)'}}>
+          <div className="card" style={{maxWidth:440,width:'90%'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <h4 style={{margin:0}}>Confirm Delete</h4>
+              <div className="small">{confirmState.ids.length} item(s)</div>
+            </div>
+            <div style={{marginTop:12}} className="small">Are you sure you want to delete {confirmState.type==='bulk' ? `${confirmState.ids.length} transactions` : 'this transaction'}? This action can be undone from History.</div>
+            <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
+              <button className="btn-ghost" onClick={()=>setConfirmState({show:false,type:null,ids:[]})}>Cancel</button>
+              <button className="btn-primary" onClick={()=>performDelete(confirmState.ids)}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {role==='admin' && (
         <form onSubmit={handleAdd} style={{marginTop:12,display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:8}}>
