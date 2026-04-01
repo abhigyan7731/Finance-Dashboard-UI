@@ -7,6 +7,9 @@ import Transactions from './components/Transactions'
 import Insights from './components/Insights'
 import History from './components/History'
 import { useApp } from './context/AppContext'
+import QuickActions from './components/QuickActions'
+import ProgressRing from './components/ProgressRing'
+import SmartInsights from './components/SmartInsights'
 
 function buildSeries(transactions){
   const byDate = [...transactions].sort((a,b)=> new Date(a.date)-new Date(b.date))
@@ -30,6 +33,7 @@ export default function App(){
   return (
     <div className="container">
       <Header />
+      <QuickActions />
       <div className="grid" style={{gridTemplateColumns:'1fr',gap:16}}>
         <div className="card">
           <SummaryCards />
@@ -50,6 +54,12 @@ export default function App(){
             <Transactions />
           </div>
           <div style={{flex:1,display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{display:'grid',gap:12}}>
+              <div style={{display:'flex',gap:12}}>
+                <div style={{flex:1}}><ProgressRing progress={0.42} label="Save" subtitle="₹50,000" /></div>
+                <div style={{flex:1}}><SmartInsights insights={[]} /></div>
+              </div>
+            </div>
             <Insights />
             <History />
           </div>
