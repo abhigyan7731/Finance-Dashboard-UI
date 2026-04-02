@@ -119,6 +119,30 @@ button:focus, input:focus, select:focus{outline:2px solid rgba(20,184,166,0.12);
   .header .small{font-size:11px}
 }
 
+/* Finance Dashboard hero logo styles */
+.fd-header{padding:8px 0}
+.fd-logo-wrap{display:flex;flex-direction:column;gap:6px}
+.fd-logo{font-size:clamp(1.6rem, 6vw, 3.2rem);font-weight:900;margin:0;line-height:1;letter-spacing:-1px;background:linear-gradient(90deg,#7c3aed,#14b8a6,#60a5fa,#f59e0b);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fd-gradient 6s linear infinite}
+.fd-logo-accent{display:inline-block;margin-left:6px;color:inherit}
+.fd-logo-badge{margin-left:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);font-weight:700;font-size:12px;color:var(--text);box-shadow:var(--glow-accent)}
+
+@keyframes fd-gradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Neon glow for logo */
+.fd-logo{filter:drop-shadow(0 8px 32px rgba(20,184,166,0.12))}
+
+/* layout: keep controls on right on desktop, stack on mobile */
+@media (min-width:641px){
+  .fd-header{flex-direction:row}
+  .fd-logo-wrap{align-items:flex-start}
+}
+@media (max-width:640px){
+  .fd-header{flex-direction:column;align-items:flex-start}
+  .fd-controls{width:100%;display:flex;justify-content:flex-start}
+  .fd-logo{font-size:clamp(1.8rem,10vw,2.6rem)}
+  .fd-logo-badge{margin-top:6px}
+}
+
 /* touch devices: avoid hover lift which can be janky */
 @media (hover: none){
   .card:hover{transform:none;box-shadow:0 8px 20px rgba(2,6,23,0.35);}

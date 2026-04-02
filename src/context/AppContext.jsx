@@ -40,12 +40,7 @@ export function AppProvider({ children }){
     }
     setDateRange({ from: from.toISOString().slice(0,10), to: to.toISOString().slice(0,10), preset: key })
   }
-  const [history, setHistory] = useState(() => {
-    try{
-      const raw = typeof window !== 'undefined' ? localStorage.getItem('history') : null
-      return raw ? JSON.parse(raw) : []
-    }catch(e){ return [] }
-  })
+  const [history, setHistory] = useState([])
 
   // Load from localStorage on client only
   useEffect(()=>{
@@ -56,6 +51,10 @@ export function AppProvider({ children }){
     if(raw) setTransactions(JSON.parse(raw))
     const dr = localStorage.getItem('dateRange')
     if(dr) setDateRange(JSON.parse(dr))
+    const hist = localStorage.getItem('history')
+    if(hist) {
+      try{ setHistory(JSON.parse(hist)) }catch(e){ /* ignore */ }
+    }
   },[])
 
   // Persist to localStorage on changes (client only)
