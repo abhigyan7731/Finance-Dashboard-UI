@@ -122,14 +122,25 @@ button:focus, input:focus, select:focus{outline:2px solid rgba(20,184,166,0.12);
 /* Finance Dashboard hero logo styles */
 .fd-header{padding:8px 0;display:flex;align-items:center;justify-content:space-between}
 .fd-logo-wrap{display:flex;flex-direction:row;align-items:center;gap:12px}
-.fd-logo{font-size:clamp(1.6rem, 6vw, 3.2rem);font-weight:900;margin:0;line-height:1;letter-spacing:-1px;background:linear-gradient(90deg,#7c3aed,#14b8a6,#60a5fa,#f59e0b);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fd-gradient 6s linear infinite;text-align:left}
+
+.fd-logo{font-size:clamp(2.2rem, 8vw, 4.8rem);font-weight:900;margin:0;line-height:1;letter-spacing:-1px;background:linear-gradient(90deg,#7c3aed,#14b8a6,#60a5fa,#f59e0b);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fd-gradient 8s linear infinite;text-align:left;transition:transform 280ms ease, filter 280ms ease}
 .fd-logo-accent{display:inline-block;margin-left:6px;color:inherit}
-.fd-logo-badge{margin-left:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);font-weight:700;font-size:12px;color:var(--text);box-shadow:var(--glow-accent)}
+.fd-logo-badge{margin-left:12px;padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.06);font-weight:800;font-size:13px;color:var(--text);box-shadow:0 10px 36px rgba(20,184,166,0.12);transform:translateY(0)}
 
 @keyframes fd-gradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 /* Neon glow for logo */
-.fd-logo{filter:drop-shadow(0 8px 32px rgba(20,184,166,0.12))}
+.fd-logo{filter:drop-shadow(0 12px 42px rgba(20,184,166,0.16))}
+.fd-logo:hover{transform:scale(1.04) rotate(-0.5deg);filter:drop-shadow(0 18px 48px rgba(20,184,166,0.22))}
+
+/* glossy shine overlay */
+.fd-logo::after{content:'';display:block;height:10%;width:60%;position:relative;top:-6px;left:0;background:linear-gradient(90deg,rgba(255,255,255,0.25),rgba(255,255,255,0.06));filter:blur(8px);opacity:0.12;pointer-events:none}
+
+/* decorative mark left of the logo */
+.fd-logo-mark{width:56px;height:56px;flex:0 0 56px;border-radius:12px;display:flex;align-items:center;justify-content:center;transform-origin:center;transition:transform 420ms ease, filter 420ms ease}
+.fd-logo-mark svg{display:block}
+.fd-logo-mark{filter:drop-shadow(0 12px 36px rgba(20,184,166,0.12))}
+.fd-logo-mark:hover{transform:scale(1.06) rotate(-6deg)}
 
 /* layout: keep controls on right on desktop, stack on mobile */
 @media (min-width:641px){

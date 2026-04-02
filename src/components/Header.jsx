@@ -17,6 +17,20 @@ export default function Header(){
   return (
     <header className="fd-header header" style={{gap:12}}>
       <div className="fd-logo-wrap">
+        <div className="fd-logo-mark" aria-hidden>
+          <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0%" stopColor="#7c3aed" />
+                <stop offset="50%" stopColor="#14b8a6" />
+                <stop offset="100%" stopColor="#60a5fa" />
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="20" fill="url(#g1)" opacity="0.95" />
+            <path d="M20 34c3-6 10-10 18-10" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/>
+            <circle cx="44" cy="22" r="3" fill="white" opacity="0.9" />
+          </svg>
+        </div>
         <h1 className="fd-logo" style={{margin:0}}>Finance<br/>Dashboard <span className="fd-logo-accent"></span></h1>
         <span className="fd-logo-badge">v2.0 PRO</span>
         <div className="small" style={{marginTop:6}}>A simple interactive demo</div>
