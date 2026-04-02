@@ -21,7 +21,7 @@ export default function History(){
                     <div style={{fontWeight:700}}>{beforeCat} → {afterCat}</div>
                   )
                 })()}
-                <div className="small">Tx: {entry.txId} · {new Date(entry.when).toLocaleString()}</div>
+                <div className="small">Tx: {entry.txId} · {new Date(entry.when).toISOString()}</div>
               </div>
               <div style={{display:'flex',gap:8,alignItems:'center'}}>
                 <div className="small">{entry.undone ? 'undone' : ''}</div>

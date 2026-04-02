@@ -231,13 +231,19 @@ button:hover{transform:translateY(-1px)}
 .transactions-wrapper{width:100%}
 .transactions-table{width:100%}
 .tx-card.glass{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(2,6,23,0.45);border:1px solid rgba(255,255,255,0.04);transition:transform 220ms var(--transition-fast), box-shadow 220ms var(--transition-fast), opacity 220ms ease;align-items:center}
+.tx-card.glass{display:flex;justify-content:space-between;align-items:center}
 .tx-card.glass:hover{transform:translateY(-6px);box-shadow:0 30px 70px rgba(20,184,166,0.08), var(--glow-accent-strong)}
 .tx-card .tx-date{color:var(--muted);min-width:96px}
 .tx-card .tx-main{display:flex;flex-direction:column}
 .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(59,130,246,0.12);color:#bfdbfe;border:1px solid rgba(59,130,246,0.08);font-size:13px}
+.tag.category{white-space:nowrap}
 .tag.category{background:rgba(59,130,246,0.12);color:#bfdbfe}
 .type{padding:6px 8px;border-radius:999px;font-size:12px;color:#072f4b;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.08)}
 .type.expense{background:rgba(239,68,68,0.1);color:#ffe7e7;border:1px solid rgba(239,68,68,0.08)}
+/* ensure type pill never swallows the amount and stays on one line */
+.type{white-space:nowrap;flex:0 0 auto}
+.tx-card .amount{flex:0 0 auto;text-align:right;min-width:90px}
+.tx-card .amount--income, .tx-card .amount--expense {flex:0 0 auto; text-align:right; min-width:90px}
 .amount--income{color:var(--gain)}
 .amount--expense{color:var(--loss)}
 .tx-history{color:var(--muted);font-size:13px;margin-top:6px}

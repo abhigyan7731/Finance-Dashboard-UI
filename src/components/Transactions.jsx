@@ -2,24 +2,24 @@ import React, { useMemo, useState } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useApp } from '../context/AppContext'
 
-function Row({t, role, onStartEdit, selected=false, removing=false}){
+function Row({t, role, onStartEdit, selected=false, removing=false, onDelete}){
   const typeClass = t.type === 'income' ? 'type income' : 'type expense'
   const amountClass = t.amount < 0 ? 'amount--expense' : 'amount--income'
   return (
-    <div className={`tx-card glass ${selected? 'selected':''} ${removing? 'removing':''}`} role="row">
-      <div style={{minWidth:120}} className="tx-date">{t.date}</div>
-      <div style={{flex:1}} className="tx-main">
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div className="tag category">{t.category}</div>
-          <div className={typeClass}>{t.type}</div>
-        </div>
-        <div className="small tx-history">{t.notes || ''}</div>
+    <div className={`tx-card glass ${selected? 'selected':''} ${removing? 'removing':''}`} role="row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+      <div style={{display:'flex',alignItems:'center',gap:12,minWidth:0,flex:'0 0 auto'}}>
+        <div className="tx-date" style={{color:'var(--muted)'}}>{t.date}</div>
+        <div className="tag category">{t.category}</div>
       </div>
-      <div style={{width:110,textAlign:'right'}}>
-        <div className={amountClass} style={{fontFamily:'ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace',fontSize:16,fontWeight:700}}>{t.amount<0?`-$${Math.abs(t.amount).toFixed(2)}`:`$${t.amount.toFixed(2)}`}</div>
+
+      <div style={{flex:1,display:'flex',justifyContent:'center',alignItems:'center',gap:12}}>
+        <div className={amountClass} style={{fontFamily:'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace',fontSize:16,fontWeight:700}}>{t.amount<0?`-$${Math.abs(t.amount).toFixed(2)}`:`$${t.amount.toFixed(2)}`}</div>
+        <div className={typeClass} style={{marginLeft:6}}>{t.type}</div>
       </div>
-      <div style={{width:100,textAlign:'center'}}>
+
+      <div style={{display:'flex',alignItems:'center',gap:8,flex:'0 0 auto'}}>
         {role==='admin' && <button className="btn-ghost" onClick={onStartEdit}>Edit</button>}
+        <button className="btn-ghost" onClick={onDelete}>Delete</button>
       </div>
     </div>
   )
@@ -113,11 +113,16 @@ export default function Transactions(){
     const t = filtered[index]
     return (
       <div style={style}>
-        {editingId===t.id ? (
-          <EditableRow t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1), dueDate: editForm.dueDate||undefined, notes: editForm.notes||''}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
-        ) : (
-          <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
-        )}
+        <div style={{display:'flex',alignItems:'center'}}>
+          <div style={{width:40,textAlign:'center'}}><input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleSelect(t.id)} /></div>
+          <div style={{flex:1}}>
+            {editingId===t.id ? (
+              <EditableRow t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1), dueDate: editForm.dueDate||undefined, notes: editForm.notes||''}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
+            ) : (
+              <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} onDelete={()=> setConfirmState({show:true,type:'single',ids:[t.id]})} />
+            )}
+          </div>
+        </div>
       </div>
     )
   }
@@ -271,8 +276,8 @@ export default function Transactions(){
         )}
         {virtualize ? (
           <div style={{height:380}}>
-            <List height={380} itemCount={filtered.length} itemSize={52} width={'100%'}>
-              {RowVirtual}
+            <List height={380} itemCount={filtered.length} itemSize={64} width={'100%'}>
+              {props => <div style={props.style}><RowVirtual {...props} /></div>}
             </List>
           </div>
         ) : (
@@ -282,17 +287,8 @@ export default function Transactions(){
             ) : (
               <div key={t.id} style={{display:'flex',alignItems:'center'}}>
                 <div style={{width:40,textAlign:'center'}}><input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleSelect(t.id)} /></div>
-                <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
-                <div style={{width:160,textAlign:'center'}}>
-                  {(() => {
-                    const entries = history.filter(h=>h.txId===t.id).sort((a,b)=> new Date(b.when)-new Date(a.when))
-                    if(entries.length===0) return <div className="small">-</div>
-                    const last = entries[0]
-                    return <div className="small">{new Date(last.when).toLocaleString()}</div>
-                  })()}
-                </div>
-                <div style={{width:80,textAlign:'center'}}>
-                  <button className="btn-ghost" onClick={()=> setConfirmState({show:true,type:'single',ids:[t.id]}) }>Delete</button>
+                <div style={{flex:1}}>
+                  <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} onDelete={()=> setConfirmState({show:true,type:'single',ids:[t.id]})} />
                 </div>
               </div>
             )
