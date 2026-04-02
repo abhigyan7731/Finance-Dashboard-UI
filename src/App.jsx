@@ -38,6 +38,22 @@ export default function App(){
       <div className="grid" style={{gridTemplateColumns:'1fr',gap:16}}>
         <div className="card">
           <SummaryCards />
+          <div style={{display:'flex',gap:12,marginTop:12,alignItems:'stretch',flexWrap:'wrap'}}>
+            <div className="card" style={{flex:1,minWidth:160,display:'flex',flexDirection:'column',justifyContent:'center'}}>
+              <div className="small">This week</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                <div style={{fontWeight:700}}>{series.length? series.slice(-7).length:0} pts</div>
+                <MiniSpark series={series.slice(Math.max(0, series.length-7)).map(s=>({value:s.value}))} />
+              </div>
+            </div>
+            <div className="card" style={{width:220,display:'flex',flexDirection:'column',justifyContent:'center'}}>
+              <div className="small">This month</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                <div style={{fontWeight:700}}>{series.length? Math.min(30, series.length):0} pts</div>
+                <MiniSpark series={series.slice(Math.max(0, series.length-30)).map(s=>({value:s.value}))} />
+              </div>
+            </div>
+          </div>
           <div style={{display:'flex',gap:16,marginTop:12,flexWrap:'wrap'}}>
             <div style={{flex:1,minWidth:260}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
