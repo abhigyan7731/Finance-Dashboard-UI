@@ -66,15 +66,17 @@ export default function App(){
                 </div>
                 <MiniSpark series={series.slice(Math.max(0, series.length-12))} />
               </div>
-              <LineChart series={series} />
-            </div>
-            <div style={{width:180}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <div className="small">Spending Breakdown</div>
-                <div className="small" title="Category share of expenses">i</div>
-              </div>
-              <PieChart data={categoryMap} />
-            </div>
+                  <div className="charts-and-insights">
+                    <div>
+                      <LineChart series={series} />
+                    </div>
+                    <div>
+                      <div style={{width:'100%'}}>
+                        <PieChart data={categoryMap} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
           </div>
         </div>
 

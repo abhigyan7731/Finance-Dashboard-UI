@@ -66,7 +66,7 @@ export default function SummaryCards(){
   }
 
   return (
-    <div className="summary" style={{display:'flex',gap:12}}>
+    <div className="summary kpi-grid">
       <Card label="Total Balance" amount={total} spark={sparkData} />
       <Card label="Income" amount={income} spark={sparkData.map(v=> v>0?v:0)} />
       <Card label="Expenses" amount={Math.abs(expense)} spark={sparkData.map(v=> v<0?Math.abs(v):0)} />

@@ -226,3 +226,39 @@ button:hover{transform:translateY(-1px)}
 
 /* anomaly badge */
 .anomaly-badge{padding:4px 8px;border-radius:8px;color:#fff;font-weight:700}
+
+/* Responsive layout helpers (mobile-first) */
+.dashboard{display:grid;gap:18px}
+
+/* KPI grid: 1 col mobile, 2 on small tablets, 4 on desktop */
+.kpi-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:12px}
+@media (min-width:640px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
+@media (min-width:1024px){ .kpi-grid{grid-template-columns:repeat(4,1fr)} }
+
+/* Filters row: stack on mobile, row on larger screens */
+.filters{display:flex;flex-direction:column;gap:8px}
+.filters .filter-item{width:100%}
+@media (min-width:640px){ .filters{flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px} .filters .filter-item{width:auto} }
+@media (min-width:1024px){ .filters{flex-wrap:nowrap} }
+
+/* Transactions: horizontal scroll on small screens to avoid squishing columns */
+.transactions-list{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.transactions-list > *{min-width:720px}
+.transactions-wrapper{overflow-x:auto}
+.transactions-table{min-width:720px}
+
+/* Ensure touch targets are comfortable on mobile */
+.transactions-list .tx-row, .transactions-list .tx-card, .tx-card > div{min-height:44px}
+.transactions-list input[type=checkbox]{width:20px;height:20px;min-width:44px;min-height:44px;margin:8px}
+.transactions-list button{min-height:44px;min-width:44px;padding:8px}
+
+/* Charts and insights: stack on mobile, two-column layout on desktop */
+.charts-and-insights{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:1024px){ .charts-and-insights{grid-template-columns:1fr 320px;align-items:start} .charts-and-insights > div:nth-child(1){min-width:0} }
+
+/* Make cards and charts fill their container width */
+.card, .chart, .kpi-grid .card{width:100%}
+svg[class*="chart-animate"], .chart svg{width:100%;height:auto}
+
+/* Small helper to allow grid rows to collapse nicely */
+.grid.responsive{grid-template-columns:1fr}
