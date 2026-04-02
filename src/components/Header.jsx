@@ -22,7 +22,15 @@ export default function Header(){
       </div>
 
       <div style={{display:'flex',alignItems:'center',gap:12}}>
-        <button className="btn-ghost" onClick={()=>setOpenSettings(s=>!s)} title="Open profile & settings">Profile</button>
+        <button className="btn-ghost" onClick={()=>setOpenSettings(s=>!s)} title="Open profile & settings" style={{display:'flex',alignItems:'center',gap:10}}>
+          <div className="profile-avatar teal" style={{width:36,height:36,borderRadius:10}} aria-hidden>
+            <div className="initials" style={{fontSize:12}}>JD</div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-start'}}>
+            <div style={{fontSize:12,fontWeight:700}}>Jordan Doe</div>
+            <div className="small" style={{fontSize:11}}>Product Manager</div>
+          </div>
+        </button>
       </div>
       {openSettings && <SettingsDrawer onClose={()=>setOpenSettings(false)} />}
     </div>

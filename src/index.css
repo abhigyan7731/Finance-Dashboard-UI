@@ -189,7 +189,7 @@ button:hover{transform:translateY(-1px)}
 .modal{background:var(--surface);padding:16px;border-radius:12px;max-width:520px;width:92%;border:1px solid var(--glass-border);z-index:10060}
 
 /* Profile / Settings - neon "crazy" styles */
-.profile-panel{position:relative;overflow:hidden;padding:18px 20px;min-width:520px;max-width:720px}
+.profile-panel{position:relative;overflow:hidden;padding:18px 20px;min-width:520px;max-width:720px;background:var(--bg-2);border:1px solid rgba(255,255,255,0.04)}
 .profile-panel::after{content:'';position:absolute;right:-120px;top:-80px;width:360px;height:360px;background:radial-gradient(circle at 30% 30%, rgba(124,58,237,0.12), transparent 30%), radial-gradient(circle at 70% 70%, rgba(20,184,166,0.08), transparent 30%);filter:blur(40px);transform:rotate(12deg);pointer-events:none}
 .profile-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3)}
 .profile-avatar{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.4);position:relative;overflow:hidden}
