@@ -41,6 +41,7 @@ function EditableRow({t, editForm, setEditForm, onSave, onCancel}){
 
 export default function Transactions(){
   const { transactions, filters, setFilters, role, addTransaction, updateTransaction, deleteTransaction, history } = useApp()
+  const [showAddForm, setShowAddForm] = useState(false)
   const [sortMode, setSortMode] = useState('date_desc')
   const [virtualize, setVirtualize] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
@@ -252,11 +253,7 @@ export default function Transactions(){
           <div style={{padding:24,display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
             <div style={{fontSize:20,fontWeight:700}}>No transactions yet</div>
             <div className="small">Start by adding your first transaction to see insights and charts.</div>
-            {role==='admin' ? (
-              <button className="btn-primary" onClick={()=>document.querySelector('form button[type=submit]')?.click()}>Add your first transaction</button>
-            ) : (
-              <button className="btn-primary" disabled title="Ask an admin to add transactions">Add your first transaction</button>
-            )}
+            <button className="btn-primary" onClick={()=>setShowAddForm(true)}>Add your first transaction</button>
           </div>
         )}
         {virtualize ? (
@@ -326,8 +323,8 @@ export default function Transactions(){
         </div>
       )}
 
-      {role==='admin' && (
-        <form onSubmit={handleAdd} style={{marginTop:12,display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:8}}>
+      {(role==='admin' || showAddForm) && (
+        <form onSubmit={e=>{ handleAdd(e); setShowAddForm(false) }} style={{marginTop:12,display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:8}}>
           <input value={form.date} onChange={e=>setForm({...form,date:e.target.value})} placeholder="YYYY-MM-DD" />
           <input value={form.category} onChange={e=>setForm({...form,category:e.target.value})} placeholder="Category" />
           <input value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})} placeholder="Amount" />
@@ -336,7 +333,10 @@ export default function Transactions(){
               <option value="expense">Expense</option>
               <option value="income">Income</option>
             </select>
-            <button type="submit" className="btn-primary">Add</button>
+            <div style={{display:'flex',gap:8}}>
+              <button type="submit" className="btn-primary">Add</button>
+              <button type="button" className="btn-ghost" onClick={()=>{ setShowAddForm(false); setForm({date:'',category:'',amount:'',type:'expense',dueDate:'',notes:''}) }}>Cancel</button>
+            </div>
           </div>
         </form>
       )}
