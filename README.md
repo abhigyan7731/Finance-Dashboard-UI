@@ -1,18 +1,18 @@
+
 # Finance Dashboard UI
 
-Small React + Vite demo implementing a simple finance dashboard UI.
+A small, responsive React + Next.js demo showing a modern finance dashboard UI with a premium look and feel.
 
-Features
-- Summary cards (Balance, Income, Expenses)
-- Balance trend (SVG line chart)
-- Spending breakdown (SVG pie)
-- Transactions list with search/filter/sort
-- Role simulation: `viewer` vs `admin` (Admin can add transactions)
-- Insights: highest spending category and monthly totals
-- LocalStorage persistence for role and transactions
+Key features
+- Responsive layout (mobile-first) with clear breakpoints for tablet and desktop
+- Summary KPI cards (Total Balance, Income, Expenses, Net Change) with sparkline previews
+- Balance trend (SVG line chart) and category breakdown (SVG pie)
+- Transactions list with search, filters, sort, pagination, virtualization and CSV export
+- Polished Transactions UI: glassy cards, pill badges, monospace amounts, selection highlights and add/delete animations
+- Profile & Settings panel: avatar, fuller name/role, chips for membership/status, grouped preferences, dark mode and accent selection
+- LocalStorage persistence for transactions, role, dateRange and preferences
 
-
-Getting started (Next.js)
+Getting started
 
 1. Install dependencies
 
@@ -27,9 +27,12 @@ npm run dev
 ```
 
 Notes
-- Built with React + Next.js. No backend required; data is mocked and stored in `localStorage`.
-- The app source lives under `src/`. The Next pages are in `pages/` and wrap the app via `pages/_app.jsx`.
-- State management: `src/context/AppContext.jsx` uses React Context to hold transactions, filters and selected `role`. Changes persist to `localStorage` on the client.
-- Insights: `src/components/Insights.jsx` shows totals, highest spending category, monthly totals and month-over-month change. Handles empty data gracefully.
-- UI: responsive layout with simple CSS in `src/index.css`. The Transactions list supports filtering, sorting, pagination, virtualization, CSV export, and admin inline edit.
+- Built with React + Next.js; the UI lives under `src/` and Next wrappers are in `pages/`.
+- `src/context/AppContext.jsx` manages app state (transactions, filters, role, date range) and persists client-side to `localStorage`.
+- Transactions support inline add/edit for admins, CSV import/export, and optional virtualization via `react-window` for large lists.
+- Styling is handled by `src/index.css`; the app uses CSS Grid / Flexbox with mobile-first breakpoints at ~640px and 1024px.
+
+If you'd like, I can:
+- Run the dev server and verify responsive breakpoints interactively.
+- Add a short screenshot and usage examples to this README.
 
