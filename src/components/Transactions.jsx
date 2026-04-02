@@ -2,15 +2,22 @@ import React, { useMemo, useState } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useApp } from '../context/AppContext'
 
-function Row({t, role, onStartEdit}){
-  const badgeClass = t.type === 'income' ? 'badge income' : 'badge expense'
-  const amountClass = t.amount < 0 ? 'amount negative' : 'amount positive'
+function Row({t, role, onStartEdit, selected=false, removing=false}){
+  const typeClass = t.type === 'income' ? 'type income' : 'type expense'
+  const amountClass = t.amount < 0 ? 'amount--expense' : 'amount--income'
   return (
-    <div className="tx-card">
-      <div style={{minWidth:120}}>{t.date}</div>
-      <div style={{flex:1}}>{t.category}</div>
-      <div style={{width:100,textAlign:'center'}}><span className={badgeClass}>{t.type}</span></div>
-      <div style={{width:110,textAlign:'right'}}><span className={amountClass}>{t.amount<0?`-$${Math.abs(t.amount).toFixed(2)}`:`$${t.amount.toFixed(2)}`}</span></div>
+    <div className={`tx-card glass ${selected? 'selected':''} ${removing? 'removing':''}`} role="row">
+      <div style={{minWidth:120}} className="tx-date">{t.date}</div>
+      <div style={{flex:1}} className="tx-main">
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <div className="tag category">{t.category}</div>
+          <div className={typeClass}>{t.type}</div>
+        </div>
+        <div className="small tx-history">{t.notes || ''}</div>
+      </div>
+      <div style={{width:110,textAlign:'right'}}>
+        <div className={amountClass} style={{fontFamily:'ui-monospace, SFMono-Regular, Menlo, Monaco, Monaco, monospace',fontSize:16,fontWeight:700}}>{t.amount<0?`-$${Math.abs(t.amount).toFixed(2)}`:`$${t.amount.toFixed(2)}`}</div>
+      </div>
       <div style={{width:100,textAlign:'center'}}>
         {role==='admin' && <button className="btn-ghost" onClick={onStartEdit}>Edit</button>}
       </div>
@@ -56,6 +63,7 @@ export default function Transactions(){
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({date:'',category:'',amount:'',type:'expense',dueDate:'',notes:''})
   const [confirmState, setConfirmState] = useState({show:false,type:null,ids:[]})
+  const [removingIds, setRemovingIds] = useState([])
 
   const categories = useMemo(()=>{
     const set = new Set(); transactions.forEach(t=> set.add(t.category)); return Array.from(set).sort()
@@ -108,7 +116,7 @@ export default function Transactions(){
         {editingId===t.id ? (
           <EditableRow t={t} editForm={editForm} setEditForm={setEditForm} onSave={(id)=>{ const payload = {date:editForm.date, category:editForm.category, type:editForm.type, amount: parseFloat(editForm.amount) * (editForm.type==='expense'? -1:1), dueDate: editForm.dueDate||undefined, notes: editForm.notes||''}; updateTransaction(id,payload); setEditingId(null) }} onCancel={()=>setEditingId(null)} />
         ) : (
-          <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
+          <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
         )}
       </div>
     )
@@ -148,9 +156,14 @@ export default function Transactions(){
   }
 
   const performDelete = (ids)=>{
-    ids.forEach(id=> deleteTransaction(id))
-    setSelectedIds([])
-    setConfirmState({show:false,type:null,ids:[]})
+    // mark as removing for animation
+    setRemovingIds(s => [...s, ...ids])
+    setTimeout(()=>{
+      ids.forEach(id=> deleteTransaction(id))
+      setSelectedIds([])
+      setConfirmState({show:false,type:null,ids:[]})
+      setRemovingIds(s => s.filter(x=>!ids.includes(x)))
+    }, 260)
   }
 
   const handleAdd = (e)=>{
@@ -269,7 +282,7 @@ export default function Transactions(){
             ) : (
               <div key={t.id} style={{display:'flex',alignItems:'center'}}>
                 <div style={{width:40,textAlign:'center'}}><input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleSelect(t.id)} /></div>
-                <Row t={t} role={role} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
+                <Row t={t} role={role} selected={selectedIds.includes(t.id)} removing={removingIds.includes(t.id)} onStartEdit={()=>{ setEditingId(t.id); setEditForm({date:t.date,category:t.category,amount:Math.abs(t.amount),type:t.type,dueDate:t.dueDate||'',notes:t.notes||''}) }} />
                 <div style={{width:160,textAlign:'center'}}>
                   {(() => {
                     const entries = history.filter(h=>h.txId===t.id).sort((a,b)=> new Date(b.when)-new Date(a.when))
